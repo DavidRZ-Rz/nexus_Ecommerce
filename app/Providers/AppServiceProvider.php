@@ -3,8 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Auth\Passwords\PasswordBrokerManager;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,18 +19,14 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot()
+    public function boot(): void
     {
-        // Soluciona problemas con longitudes de clave en MySQL antiguos
+        // Evita problemas con claves largas en MySQL viejos
         Schema::defaultStringLength(191);
 
-        // Configuración personalizada para reset de contraseña
-        $this->app->singleton('auth.password', function ($app) {
-            return new PasswordBrokerManager($app);
-        });
-
-        $this->app->bind('auth.password.broker', function ($app) {
-            return $app->make('auth.password')->broker();
-        });
+        // Forzar HTTPS si estás en producción
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
     }
 }

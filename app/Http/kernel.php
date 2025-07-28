@@ -2,6 +2,8 @@
 
 namespace App\Http;
 
+
+
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -48,9 +50,10 @@ class Kernel extends HttpKernel
         'precognitive' => \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'tipo' => \App\Http\Middleware\CheckRole::class,
-        
+        'tipo' => \app\Http\Middleware\CheckTipo::class// ESTE ES EL QUE NOS IMPORTA
+
     ];
+
 
     /**
      * Register the application's route middleware.

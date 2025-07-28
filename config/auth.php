@@ -13,9 +13,9 @@ return [
     |
     */
 
-    'defaults' => [
-        'guard' => env('AUTH_GUARD', 'web'),
-        'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
+     'defaults' => [
+        'guard' => 'api',  // Cambiado a 'api' como principal
+        'passwords' => 'usuarios',  // Coherente con tu modelo Usuario
     ],
 
     /*
@@ -38,11 +38,12 @@ return [
     'guards' => [
         'web' => [
             'driver' => 'session',
-            'provider' => 'users',
+            'provider' => 'usuarios',
         ],
         'api' => [
-            'driver' => 'jwt',
-            'provider' => 'users',
+            'driver' => 'jwt',  // Asegúrate que coincides con tu paquete JWT
+            'provider' => 'usuarios',
+            'hash' => false,
         ],
     ],
 
@@ -65,16 +66,17 @@ return [
     */
 
     'providers' => [
-        'users' => [
+        'usuarios' => [  // Cambiado de 'users' a 'usuarios'
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\Usuario::class),
+            'model' => App\Models\Usuario::class,  // Modelo directo sin env()
         ],
+    ],
 
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
-    ],
+    
 
     /*
     |--------------------------------------------------------------------------
@@ -95,12 +97,12 @@ return [
     |
     */
 
-    'passwords' => [
-        'users' => [
-            'provider' => 'users',
+   'passwords' => [
+        'usuarios' => [  // Cambiado de 'users' a 'usuarios'
+            'provider' => 'usuarios',
             'table' => 'password_resets',
             'expire' => 60,
-            'throttle' => 60,
+            'throttle' => 120,  // Aumentado a 120 segundos
         ],
     ],
 
@@ -115,6 +117,6 @@ return [
     |
     */
 
-    'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
+     'password_timeout' => 10800,
 
 ];

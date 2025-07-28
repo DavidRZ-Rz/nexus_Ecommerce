@@ -132,72 +132,85 @@ class UsuariosController extends Controller
     }
 
 
-    public function forgotPassword(Request $request)
-    {
+     public function forgotPassword(Request $request) {
         $request->validate(['email' => 'required|email']);
 
         $status = Password::sendResetLink(
-            $request->only('email'),
-            function ($user, $token) {
-                // Envía la notificación con tu implementación personalizada
-                $user->notify(new ResetPasswordNotification($token));
-            }
+            $request->only('email')
         );
 
-        return $status === Password::RESET_LINK_SENT
-            ? response()->json(['success' => true, 'message' => __($status)])
-            : response()->json(['success' => false, 'message' => __($status)], 400);
+        return response()->json([
+            'message' => $status === Password::RESET_LINK_SENT
+                ? 'Email de recuperación enviado'
+                : 'No se pudo enviar el email'
+        ], $status === Password::RESET_LINK_SENT ? 200 : 400);
     }
 
-    public function resetPassword(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
+    public function resetPassword(Request $request) {
+        $request->validate([
             'token' => 'required',
             'email' => 'required|email',
-            'password' => 'required|min:6|confirmed',
+            'password' => 'required|min:8|confirmed',
         ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors(),
-            ], 422);
-        }
 
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user, $password) {
+            function ($user) use ($request) {
                 $user->forceFill([
-                    'password' => Hash::make($password)
+                    'password' => Hash::make($request->password),
                 ])->save();
+
+                $user->tokens()->delete(); // opcional: cerrar sesiones
             }
         );
 
-        return $status == Password::PASSWORD_RESET
-            ? response()->json(['success' => true, 'message' => __($status)])
-            : response()->json(['success' => false, 'message' => __($status)], 400);
+        return response()->json([
+            'message' => $status === Password::PASSWORD_RESET
+                ? 'Contraseña actualizada'
+                : 'Token inválido o expirado'
+        ], $status === Password::PASSWORD_RESET ? 200 : 400);
     }
 
-    public function showResetForm($token, $email)
+    /**
+     * Editar el perfil del usuario autenticado.
+     */
+    public function editarPerfil(Request $request)
     {
-        // Validar el email primero
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return response()->json([
-                'error' => 'Email inválido'
-            ], 400);
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'sometimes|string|min:8',
+            'direccion' => 'sometimes|string|max:255',
+            'telefono' => 'sometimes|string|max:255',
+            'username' => 'sometimes|string|max:255|unique:users,username,' .
+            $user->id,
+            'tipo' => 'sometimes|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
         }
 
-        // Construir URL correctamente
-        $resetUrl = rtrim(config('app.frontend_url'), '/') . '/reset-password?'
-            . http_build_query([
-                'token' => $token,
-                'email' => $email
-            ]);
+        $validatedData = $validator->validated();
 
+        // Hashear la contraseña si está presente
+        if (isset($validatedData['password'])) {
+            $validatedData['password'] = Hash::make($validatedData['password']);
+        }
+
+        $user->update($validatedData);
+
+        return response()->json($user);
+    }
+
+     // Retorna el usuario autenticado
+    public function me(Request $request)
+    {
         return response()->json([
-            'token' => $token,
-            'email' => $email,
-            'reset_url' => $resetUrl
+            'success' => true,
+            'user' => $request->user(),
         ]);
     }
 }
