@@ -25,10 +25,10 @@ class PedidosController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(),[
-            'estado' => 'required|string|max:255',
+            'estado' => 'string|max:255',
             'fechaPedido' => 'required|date',
             'numero' => 'required|string|max:255',
-            'total' => 'required|double',
+            'total' => 'required|numeric',
             'usuario_id' => 'required|integer|exists:usuarios,id'
         ]);
 

@@ -19,7 +19,12 @@ class Usuario extends Authenticatable implements JWTSubject
         'password',
         'tipo', // Cambiado de 'role' a 'tipo'
         'username',
-        'imagenUrl'
+        'imagenUrl',
+        'activo',
+    ];
+
+     protected $attributes = [
+        'activo' => true, // <-- Valor por defecto
     ];
 
     protected $hidden = [

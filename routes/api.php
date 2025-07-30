@@ -6,14 +6,13 @@ use App\Http\Controllers\UsuariosController;
 use App\Http\Controllers\ProductosController;
 use App\Http\Controllers\PedidosController;
 use App\Http\Controllers\ComentariosController;
+use App\Http\Controllers\PaymentController;
 
 Route::post('login', [UsuariosController::class, 'login']);
 Route::post('register', [UsuariosController::class, 'registrar']);
-// Ruta para solicitar el restablecimiento (POST)
-Route::post('forgot-password', [UsuariosController::class, 'forgotPassword']);
-
-// Ruta para procesar el restablecimiento (POST)
-Route::post('reset-password', [UsuariosController::class, 'resetPassword']);
+Route::post('/password/email', [UsuariosController::class, 'forgotPassword']);
+Route::post('/password/verify', [UsuariosController::class, 'verifyResetCode']);
+Route::post('/password/reset', [UsuariosController::class, 'resetPassword']);
 
 Route::get('/reset-password/{token}', function ($token) {
     return response()->json([
@@ -32,6 +31,7 @@ Route::middleware(['jwt.auth'])->group(function () {
     Route::put('editarPerfil', [UsuariosController::class, 'editarPerfil']);
     Route::get('user', [UsuariosController::class, 'getUserTipo']); // Cambiado de getUserRole a getUserTipo
     Route::post('logout', [UsuariosController::class, 'logout']);
+    Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);
 
     // Rutas para user y admin
     Route::middleware(['tipo:USER,ADMIN'])->group(function () { // Cambiado de role a tipo

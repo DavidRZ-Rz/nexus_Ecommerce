@@ -13,9 +13,14 @@ class ProductosController extends Controller
      */
     public function index()
     {
-        $productos = Producto::all();
+        $productos = Producto::all()->map(function ($producto) {
+            $producto->imagen = url('images/' . $producto->imagen);
+            return $producto;
+        });
+
         return response()->json($productos);
     }
+   
 
     /**
      * Store a newly created resource in storage.
