@@ -39,6 +39,7 @@ Route::middleware(['jwt.auth'])->group(function () {
         Route::controller(ProductosController::class)->group(function () {
             Route::get('productos', 'index');
             Route::get('producto/{id}', 'show');
+             Route::patch('producto/{id}/descontar-stock', 'descontarStock');
         });
 
         Route::controller(PedidosController::class)->group(function () {
@@ -49,6 +50,7 @@ Route::middleware(['jwt.auth'])->group(function () {
 
         Route::controller(ComentariosController::class)->group(function () {
             Route::post('comentario', 'store');
+            Route::get('comentarios', 'index');
             Route::get('comentarios/{producto_id}', 'getByProducto');
         });
     });

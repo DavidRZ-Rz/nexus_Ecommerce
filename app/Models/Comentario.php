@@ -12,7 +12,8 @@ class Comentario extends Model
         'fecha',
         'texto',
         'usuario',
-        'producto_id'
+        'producto_id',
+        'calificacion',
     ];
     public $timestamps = false;
 

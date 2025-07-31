@@ -103,4 +103,36 @@ class ProductosController extends Controller
         $productos->delete();
         return response()->json(['message' => 'Producto eliminado con exito']);
     }
+
+    public function descontarStock(Request $request, $id)
+{
+    $producto = Producto::find($id);
+    
+    if (!$producto) {
+        return response()->json(['message' => 'Producto no encontrado'], 404);
+    }
+
+    $validator = Validator::make($request->all(), [
+        'cantidad' => 'required|integer|min:1',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json($validator->errors(), 422);
+    }
+
+    $cantidadSolicitada = $request->input('cantidad');
+
+    if ($producto->cantidad < $cantidadSolicitada) {
+        return response()->json(['message' => 'Stock insuficiente'], 400);
+    }
+
+    $producto->cantidad -= $cantidadSolicitada;
+    $producto->save();
+
+    return response()->json([
+        'message' => 'Stock actualizado',
+        'producto' => $producto
+    ]);
+}
+
 }

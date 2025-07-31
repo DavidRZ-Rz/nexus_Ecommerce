@@ -11,11 +11,17 @@ class ComentariosController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-         $comentario = Comentario::all();
-        return response()->json($comentario);
+    public function index(Request $request)
+{
+    if ($request->has('producto_id')) {
+        $comentarios = Comentario::where('producto_id', $request->producto_id)->get();
+    } else {
+        $comentarios = Comentario::all();
     }
+
+    return response()->json($comentarios);
+}
+
 
     /**
      * Store a newly created resource in storage.
@@ -25,8 +31,9 @@ class ComentariosController extends Controller
         $validator = Validator::make($request->all(),[
             'fecha' => 'required|date',
             'texto' => 'required|string|max:1000',
-            'usuario' => 'required|string|max:255',
-            'producto_id' => 'required|exists:productos,id'
+            'usuario' => 'string|max:255',
+            'producto_id' => 'required|exists:productos,id',
+            'calificacion' => 'required|integer|min:1|max:5'
         ]);
         if ($validator->fails()){
             return response()->json($validator->errors(), 422);
@@ -61,7 +68,8 @@ class ComentariosController extends Controller
             'fecha' => 'date',
             'texto' => 'string|max:1000|    ',
             'usuario' => 'string|max:255',
-            'producto_id' => 'exists:productos,id'
+            'producto_id' => 'exists:productos,id',
+            'calificacion' => 'integer|min:1|max:5',
         ]);
         if ($validator->fails()){
             return response()->json($validator->errors(), 422);

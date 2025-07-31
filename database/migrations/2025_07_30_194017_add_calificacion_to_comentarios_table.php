@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('usuarios', function (Blueprint $table) {
-            $table->renameColumn('role', 'tipo');
+        Schema::table('comentarios', function (Blueprint $table) {
+            $table->unsignedTinyInteger('calificacion')->after('texto'); // del 1 al 5
         });
     }
 
     public function down()
     {
-        Schema::table('usuarios', function (Blueprint $table) {
-            $table->renameColumn('tipo', 'role');
+        Schema::table('comentarios', function (Blueprint $table) {
+            $table->dropColumn('calificacion');
         });
     }
 };
