@@ -323,4 +323,37 @@ class UsuariosController extends Controller
             'user' => $request->user(),
         ]);
     }
+    public function cambiarPassword(Request $request)
+    {
+        $usuario = JWTAuth::parseToken()->authenticate();
+
+        $validator = Validator::make($request->all(), [
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed', // Debe incluir también new_password_confirmation
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Verificar la contraseña actual
+        if (!Hash::check($request->current_password, $usuario->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La contraseña actual es incorrecta',
+            ], 400);
+        }
+
+        // Cambiar la contraseña
+        $usuario->password = Hash::make($request->new_password);
+        $usuario->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Contraseña actualizada correctamente',
+        ]);
+    }
 }

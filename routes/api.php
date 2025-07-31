@@ -28,6 +28,8 @@ Route::middleware(['jwt.auth'])->group(function () {
     Route::get('me', function (Request $request) {
         return response()->json($request->user());
     });
+    Route::post('cambiar-password', [UsuariosController::class, 'cambiarPassword']);
+
     Route::put('editarPerfil', [UsuariosController::class, 'editarPerfil']);
     Route::get('user', [UsuariosController::class, 'getUserTipo']); // Cambiado de getUserRole a getUserTipo
     Route::post('logout', [UsuariosController::class, 'logout']);
